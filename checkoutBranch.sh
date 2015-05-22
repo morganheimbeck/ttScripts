@@ -2,6 +2,10 @@
 
 # call this function with a parameter of the tag you want to checkout
 # ie. checkoutBranch.sh 1.15.5
+
+# THIS MUST BE RUN FROM www/js_app
+# this is because git, npm, and bower should all function from there
+# without additional annoying logic
 if [ "$1" != "" ]; then
     echo "tag is "$1
     git fetch -p
