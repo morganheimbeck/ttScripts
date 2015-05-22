@@ -1,0 +1,7 @@
+*.conf
+*.log
+*.bak
+*.swp
+*.DS_Store
+*.orig
+*.idea
