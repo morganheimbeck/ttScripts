@@ -6,15 +6,12 @@
 #This script should be run from the project root directory at least, SyrinxDesktop.stable/www, root/www/js_app otherwise the paths will not work.
 CURRENT_DIR=$(pwd)
 
-if [[ $CURRENT_DIR =~ "www/js_app" ]]
-then
+if [[ $CURRENT_DIR =~ "www/js_app" ]]; then
     echo "dont have to go anywhere"
-elif [[ $CURRENT_DIR =~ "www" ]]
-then
+elif [[ $CURRENT_DIR =~ "www" ]]; then
     echo "moving to js_app"
     cd js_app
-elif [[ $CURRENT_DIR =~ "scripts" ]]
-then
+elif [[ $CURRENT_DIR =~ "scripts" ]]; then
     echo "moving up one and down to www/js_app"
     cd ../www/js_app
 else
