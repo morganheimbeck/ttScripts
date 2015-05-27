@@ -28,7 +28,6 @@ if [ "$1" != "" ]; then
     git branch -d p$1
     git checkout -b p$1 v$1
     npm install
-    bower install --allow-root --config.interactive=false
 else
     git fetch -t
     latest=$(git describe --tags --abbrev=0)
