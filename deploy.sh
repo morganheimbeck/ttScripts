@@ -1,7 +1,8 @@
-#!/bin/bash
+#!/bin/sh
 
 if [ "$tagVersion" != "" ]; then
     echo "start branch checkout"
+    cd /syrinxDesktop
     sh /syrinxDesktop/scripts/checkoutBranch.sh $tagVersion;
     echo "start steal build"
     grunt --gruntfile=/syrinxDesktop/www/js_app/Gruntfile.js build;
