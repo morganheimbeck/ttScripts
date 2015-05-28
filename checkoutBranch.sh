@@ -4,7 +4,8 @@
 # ie. checkoutBranch.sh 1.15.5
 
 #This script should be run from root, root/www, root/www/js_app otherwise the paths will not work.
-bash SyrinxChangeDir
+#./SyrinxChangeDir
+cd www/js_app
 
 if [ "$1" != "" ]; then
     echo "tag is "$1
