@@ -18,10 +18,10 @@ clear
  USER=$(whoami);
  QUAL=$(echo $CASE | tr '[:upper:]' '[:lower:]');
  echo "Please provide the path and name of the zipped folder. If you path has spaces, this script has already changed the spaces to underscores. Here is a current directory listing:"
-ls -lah 
-echo 
+ls -lah
+echo
  read philfile 
- echo 
+ echo
 while true; do
     read -p "Is $philfile your zipped folder? yes/no:" yn
     case $yn in
@@ -29,12 +29,12 @@ while true; do
         [Nn]* ) echo "please reload your archive and execute this script again. For this script to work, the zipped archive must be the most recently modified file in the folder this script was executed in. You can use the command 'touch (yourfile).zip' to trigger this"; exit ;;
         * ) echo "Please answer yes or no.";;
     esac
-done 
+done
 
 
 # Make a folder with the qualifier given and unzip phil's images into it
 
- QUALDIR="/home/$USER/SyrinxDesktop/www/images_app/global/co_brand/$CASE";
+ QUALDIR="~/WebstormProjects/syrinx/desktop/www/images_app/global/co_brand/$CASE";
 
  mkdir $QUALDIR;
 
@@ -53,7 +53,7 @@ done
  find -name "*f0f0f0*" -exec mv {} map_logo.png \;
  find -name "*ffffff*" -exec mv {} quote_logo.png \;
 
- # Add css to main.css in your home directory
+ # Add css to themes.less in your home directory
 
  echo
  echo
@@ -64,20 +64,22 @@ done
 ---------------------------------
 */
 
- #$QUAL #cobrand_logo {
-     background: url(/images_app/global/co_brand/$CASE/small_logo.png) no-repeat;
- }
- #$QUAL .map-logo {
-     background: url(/images_app/global/co_brand/$CASE/map_logo.png) 0px 0px no-repeat;
- }
- #$QUAL .quote_logo {
-     background: url(/images_app/global/co_brand/$CASE/quote_logo.png) 50% 0px no-repeat;
+ #$QUAL {
+     #cobrand_logo {
+         background: url(\"@{images-co-brand}$CASE/small_logo.png\") no-repeat;
+     }
+     .map-logo {
+         background: url(\"@{images-co-brand}$CASE/map_logo.png\") 0px 0px no-repeat;
+     }
+     .quote_logo {
+         background: url(\"@{images-co-brand}$CASE/quote_logo.png\") 50% 0px no-repeat;
+     }
  }" | tee associated_css.txt;
 
 line=/create_logo.sh/
-tmp="./themes.css"
-sed -e "${line}r associated_css.txt" /home/${USER}/SyrinxDesktop/www/js_app/css_app/themes.css > $tmp
-mv themes.css /home/$USER/SyrinxDesktop/www/js_app/css_app/themes.css;
+tmp="./themes.less"
+sed -e "${line}r associated_css.txt" ~/WebstormProjects/syrinx/desktop/www/js_app/css_app/themes.less > $tmp
+mv themes.less ~/WebstormProjects/syrinx/desktop/www/js_app/css_app/themes.less;
 rm associated_css.txt;
 rm $philfile
  echo
@@ -85,4 +87,3 @@ rm $philfile
  echo "All done! *******REMEMBER TO TEST(clear your cache) AND PUSH your changes.************";
  echo
  echo
-
