@@ -7,9 +7,9 @@
 #./SyrinxChangeDir
 cd www/js_app
 
-if [ "$1" != "" ]; then
+if [ -n "$1" ]; then
     echo "tag is "$1
-    git fetch -p
+    git fetch -pt
     git branch -d p$1
     git checkout -b p$1 v$1
     npm install

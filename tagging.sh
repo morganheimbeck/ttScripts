@@ -8,7 +8,7 @@
 
 git fetch -t
 lasttag=$(git describe --tags --abbrev=0)
-if [ "$1" != "" ]; then
+if [ -n "$1" ]; then
     # git checkout master
     git tag v1.$1
     git push origin v1.$1
