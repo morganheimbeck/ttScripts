@@ -1,0 +1,81 @@
+#!/bin/sh
+
+if [ -z "$1" ] || [ -z "$2" ] || [ -z "$3" ]; then
+    echo "Parameters are required:"
+    echo "1. (required) name to be appended to /spec/Syrinx. to create the directory in"
+    echo "2. (required) port to run on (ie. 8130 or 9009)"
+    echo "3. (required) unique name to append to DE for the inittab to keep the API service running"
+    echo "4. (optional) branch to check out otherwise will just check out dev"
+    echo "DONT FORGET to add the first parameter to ansible so that we can manage updates to this directory from there"
+fi
+
+# test the port is not already in use and not in the /etc/nginx/conf.d/repos.d/nodeservers.all configs
+# test that /spec/Syrinx.$dirName doesn't already exist
+# test that there is not a name overlap with DE$inittabName in the /etc/inittab file
+
+# This is to script the set up of a new api instance on the server
+# @param 1 Name of the directory to be appended to /spec/Syrinx.
+# @param 2 port that the api will listen to
+# @param 3 unique identifier that will be appended to DE in naming the inittab
+# @param 4 branch to clone and initially check out otherwise will default to the dev branch
+# Examples:
+#  `createAPI ApiBranchZZ 8129 BZ TR-211`
+#  `createAPI ApiBranchD 8130 BD`
+
+dirName=$1
+port=$2
+inittabName=$3
+dirPath=/spec/Syrinx.$dirName
+branch=${4:-dev}
+
+echo "cloning API to $dirPath"
+mkdir $dirPath
+git clone -b $branch ssh://git@stash.tradetech.net:7999/api/syrinx_api.git $dirPath
+
+echo "copying config from /spec/Syrinx.ApiBranchC"
+cp /spec/Syrinx.ApiBranchC/etc/config $dirPath/etc/config
+
+echo "replace port in config file"
+sed -i 's/8128/'$port'/g' $dirPath/etc/config
+sed -i 's/Branch C/'$dirName'/g' $dirPath/etc/config
+
+echo "add log files"
+names=( access preAccess event error debug error browser )
+for name in "${names[@]}"
+do
+    touch $dirPath/var/log/$name.log
+done
+
+echo "update permissions on directories and files"
+#for files
+find $dirPath/. -type f -exec chmod 0665 {} \;
+#for directories
+find $dirPath/. -type d -exec chmod 0775 {} \;
+echo "update owner of files to dev:dev"
+sudo chown -R dev:dev $dirPath/.
+
+echo "append to the /etc/nginx/conf.d/repos.d/nodeservers.all the rerouting required for dev frontends to use the api"
+echo "
+    # Pass node calls to the port running data engine:
+    # Port $port - API Syrinx $dirName
+    location /node$port {
+        rewrite /node$port(.*) /\$1 break;
+        proxy_pass  http://dev.tradetech.net:$port;
+    }
+    location /node$port/ {
+        rewrite /node$port(.*) \$1 break;
+        proxy_pass  http://dev.tradetech.net:$port;
+    }
+" | sudo tee -a /etc/nginx/conf.d/repos.d/nodeservers.all
+
+sudo /etc/init.d/nginx configtest
+sudo /etc/init.d/nginx restart
+
+echo "add to /etc/inittab so that the api is constantly running"
+echo "DE$inittabName:4:respawn:$dirPath/bin/DataEngine >> /var/log/inittab/Syrinx.$dirName.DataEngine.log 2>&1" | sudo tee -a /etc/inittab
+sudo /sbin/init q
+
+echo "Put the name you came up with in to the ansible task options for updating dev apis, name should be: .$dirName";
+echo "if there are any errors trying to start up this api, they will show up here in this tail of /var/log/inittab/Syrinx.$dirName.DataEngine.log"
+echo "to exit this script, just type CTRL-C"
+tail -f /var/log/inittab/Syrinx.$dirName.DataEngine.log
